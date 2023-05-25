@@ -1,0 +1,30 @@
+version: '3'
+services:
+  rabbitmq:
+    image: "rabbitmq:3.8-management-alpine"
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: newuser
+      RABBITMQ_DEFAULT_PASS: newpassword
+    ports:
+      - "5673:5672"  # Aquí se cambió el puerto de 5672 a 5673
+      - "15673:15672"  # Aquí se cambió el puerto de 15672 a 15673
+
+  producer:
+    build: ./producer
+    depends_on:
+      - rabbitmq
+    volumes:
+      - ./producer:/usr/src/app
+    deploy:
+      replicas: 5
+
+  consumer:
+    build: ./consumer
+    depends_on:
+      - rabbitmq
+      - producer
+    volumes:
+      - ./consumer:/usr/src/app
+    deploy:
+      replicas: 3
